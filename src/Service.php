@@ -2,8 +2,6 @@
 
 namespace think\plugin;
 
-use think\app\MultiApp;
-use think\app\Url;
 use think\Service as BaseService;
 
 class Service extends BaseService
