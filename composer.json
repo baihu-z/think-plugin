@@ -17,7 +17,7 @@
     "extra": {
         "think":{
             "services":[
-                "think\\app\\Service"
+                "think\\plugin\\Service"
             ]
         }
     }
