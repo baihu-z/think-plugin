@@ -1,0 +1,24 @@
+{
+    "name": "baihu/think-plugin",
+    "authors": [
+        {
+            "name": "baihu",
+            "email": "280886296@qq.com"
+        }
+    ],
+    "require": {
+        "php": ">=7.1.0"
+    },
+    "autoload": {
+        "psr-4": {
+            "think\\plugin\\": "src/"
+        }
+    },
+    "extra": {
+        "think":{
+            "services":[
+                "think\\app\\Service"
+            ]
+        }
+    }
+}
