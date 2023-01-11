@@ -143,7 +143,7 @@ EOF;
 // +----------------------------------------------------------------------
 // | Licensed REBORN 并不是自由软件，未经许可不能去掉 REBORN 相关版权
 // +----------------------------------------------------------------------
-namespace  app\plugin\\$name\\controller;
+namespace  plugin\\$name\\controller;
 class IndexController
 {
 
@@ -202,7 +202,7 @@ EOF;
 // +----------------------------------------------------------------------
 // | Licensed REBORN 并不是自由软件，未经许可不能去掉 REBORN 相关版权
 // +----------------------------------------------------------------------
-namespace app\\plugin\\$name\\command;
+namespace plugin\\$name\\command;
 
 use think\console\Command;
 use think\console\Input;
@@ -249,7 +249,7 @@ EOF;
 return [
     // 指令定义
     'commands' => [
-        'test:create' => 'app\\plugin\\$name\\command\\TestCommand',//应用插件测试命令行
+        '$name:create' => 'plugin\\$name\\command\\TestCommand',//应用插件测试命令行
     ],
 ];
 EOF;
