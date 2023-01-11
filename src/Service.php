@@ -2,12 +2,15 @@
 
 namespace think\plugin;
 
+use think\Console;
 use think\plugin\Plugin;
+use think\plugin\Url;
 use think\Service as BaseService;
 use think\Route;
 use think\facade\Config;
 use think\facade\Cache;
 use think\facade\Event;
+
 /**
  * 插件服务
  * Class Service
@@ -21,7 +24,6 @@ class Service extends BaseService
     public function register()
     {
         $this->plugins_path = $this->getpluginPath();
-
         // 自动载入插件
         $this->autoload();
         // 加载插件事件
@@ -35,19 +37,19 @@ class Service extends BaseService
 
     public function boot()
     {
-        //注册中间件
+        //注册插件基础中间件
         $this->app->event->listen('HttpRun', function () {
             $this->app->middleware->add(Plugin::class);
         });
-        // $this->app->config->load($file, pathinfo($file, PATHINFO_FILENAME));
-        //注册命令
+        //注册插件基础命令
         $this->commands([
             'app-plugin:create' => command\AppPluginCreateCommand::class,
         ]);
-        //注册路由
+        //注册插件基础路由
         $this->app->bind([
             'think\plugin\Url' => Url::class,
         ]);
+        $routes = (array)Config::get();
         $this->registerRoutes(function (Route $route) {
             // 路由脚本
             $execute = '\\think\\plugin\\Route::execute';
@@ -173,9 +175,11 @@ class Service extends BaseService
         $config = Config::get('plugin');
         // 读取插件目录及钩子列表
         $base = get_class_methods("\\think\\plugin");
-        $file=[];
-        $file=array_merge($file,glob($this->getpluginPath() . '*/*'. $this->app->getConfigExt()));
-        $file=$file?array_unique($file):$file;
+        $file = [];
+        $file = array_merge($file, glob($this->getpluginPath() . '*/*' . $this->app->getConfigExt()));
+        $file = array_merge($file, glob($this->getpluginPath() . '*/config/*' . $this->app->getConfigExt()));
+        $file = $file ? array_unique($file) : $file;
+        $config_files = [];
         // 读取插件目录中的php文件
         foreach ($file as $plugins_file) {
             // 格式化路径信息
@@ -203,31 +207,27 @@ class Service extends BaseService
                     }
 
                 }
-                $config['a']=[];
+                $config['a'] = [];
             }
 
             if (strtolower($info['filename']) === 'common') {
                 include_once $plugins_file;
             }
-            if (strtolower($info['filename']) === 'event') {
-                $this->app->loadEvent(include $plugins_file);
+//            if (strtolower($info['filename']) === 'event') {
+//                $this->app->loadEvent(include $plugins_file);
+//            }
+//            if (strtolower($info['filename']) === 'middleware') {
+//                $this->app->middleware->import(include $plugins_file, 'plugin');
+//            }
+//            if (strtolower($info['filename']) === 'provider') {
+//                $this->app->bind(include $plugins_file);
+//            }
+            //加载插件自定义命令
+            if (strtolower($info['filename']) === 'console') {
+                $console_config = include $plugins_file;
+                $this->commands($console_config['commands']);
             }
-            if (strtolower($info['filename']) === 'middleware') {
-                $this->app->middleware->import(include $plugins_file, 'plugin');
-            }
-            if (strtolower($info['filename']) === 'provider') {
-                $this->app->bind(include $plugins_file);
-            }
-            $config_files = [];
-
-            $config_files = array_merge($config_files, glob($info['dirname'] .DIRECTORY_SEPARATOR. 'config' . DIRECTORY_SEPARATOR . '*' . $this->app->getConfigExt()));
-
-
-            foreach ($config_files as $file) {
-
-                $this->app->config->load($file, pathinfo($file, PATHINFO_FILENAME));
-            }
-
+            $config_files[] = $info['dirname'];
         }
         Config::set($config, 'plugin');
     }
