@@ -5,6 +5,9 @@ namespace think\plugin;
 use think\plugin\Plugin;
 use think\Service as BaseService;
 use think\Route;
+use think\facade\Config;
+use think\facade\Cache;
+use think\facade\Event;
 /**
  * 插件服务
  * Class Service
@@ -20,9 +23,9 @@ class Service extends BaseService
         $this->plugins_path = $this->getpluginPath();
 
         // 自动载入插件
-        // $this->autoload();
+        $this->autoload();
         // 加载插件事件
-        // $this->loadEvent();
+        $this->loadEvent();
         // 加载插件系统服务
         $this->loadService();
         // 绑定插件容器
@@ -47,7 +50,7 @@ class Service extends BaseService
         ]);
         $this->registerRoutes(function (Route $route) {
             // 路由脚本
-            $execute = '\\think\\plugin\\Url::execute';
+            $execute = '\\think\\plugin\\Route::execute';
             // 注册控制器路由
             $route->rule("plugin/:plugin/[:controller]/[:action]", $execute)->middleware(Plugin::class);
             // 自定义路由
@@ -164,18 +167,22 @@ class Service extends BaseService
     private function autoload()
     {
         // 是否处理自动载入
-        if (!Config::get('plugins.autoload', true)) {
+        if (!Config::get('plugin.autoload', true)) {
             return true;
         }
-        $config = Config::get('plugins');
+        $config = Config::get('plugin');
         // 读取插件目录及钩子列表
-        $base = get_class_methods("\\think\\Plugins");
+        $base = get_class_methods("\\think\\plugin");
+        $file=[];
+        $file=array_merge($file,glob($this->getpluginPath() . '*/*'. $this->app->getConfigExt()));
+        $file=$file?array_unique($file):$file;
         // 读取插件目录中的php文件
-        foreach (glob($this->getpluginsPath() . '*/*.php') as $plugins_file) {
+        foreach ($file as $plugins_file) {
             // 格式化路径信息
             $info = pathinfo($plugins_file);
             // 获取插件目录名
             $name = pathinfo($info['dirname'], PATHINFO_FILENAME);
+
             // 找到插件入口文件
             if (strtolower($info['filename']) === 'plugin') {
                 // 读取出所有公共方法
@@ -194,10 +201,35 @@ class Service extends BaseService
                     if (!in_array($name, $config['hooks'][$hook])) {
                         $config['hooks'][$hook][] = $name;
                     }
+
                 }
+                $config['a']=[];
             }
+
+            if (strtolower($info['filename']) === 'common') {
+                include_once $plugins_file;
+            }
+            if (strtolower($info['filename']) === 'event') {
+                $this->app->loadEvent(include $plugins_file);
+            }
+            if (strtolower($info['filename']) === 'middleware') {
+                $this->app->middleware->import(include $plugins_file, 'plugin');
+            }
+            if (strtolower($info['filename']) === 'provider') {
+                $this->app->bind(include $plugins_file);
+            }
+            $config_files = [];
+
+            $config_files = array_merge($config_files, glob($info['dirname'] .DIRECTORY_SEPARATOR. 'config' . DIRECTORY_SEPARATOR . '*' . $this->app->getConfigExt()));
+
+
+            foreach ($config_files as $file) {
+
+                $this->app->config->load($file, pathinfo($file, PATHINFO_FILENAME));
+            }
+
         }
-        Config::set($config, 'plugins');
+        Config::set($config, 'plugin');
     }
 
     /**

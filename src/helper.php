@@ -1,6 +1,10 @@
 <?php
 declare(strict_types=1);
-
+use think\facade\Event;
+use think\facade\Route;
+use think\helper\{
+    Str, Arr
+};
 // 插件类库自动载入
 spl_autoload_register(function ($class) {
 
