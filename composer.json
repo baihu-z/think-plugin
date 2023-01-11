@@ -13,7 +13,10 @@
     "autoload": {
         "psr-4": {
             "think\\plugin\\": "src/"
-        }
+        },
+        "files": [
+            "src/helper.php"
+        ]
     },
     "extra": {
         "think":{

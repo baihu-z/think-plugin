@@ -44,22 +44,22 @@ class AppPluginCreateCommand extends Command
     protected function mkdirDirAll($name)
     {
         $base_path = root_path();
-        $this->mkdir("$base_path/plugin/$name/app/controller");
-        $this->mkdir("$base_path/plugin/$name/app/model");
-        $this->mkdir("$base_path/plugin/$name/app/middleware");
-        $this->mkdir("$base_path/plugin/$name/app/route");
-        $this->mkdir("$base_path/plugin/$name/app/validate");
-        $this->mkdir("$base_path/plugin/$name/app/command");
-        $this->mkdir("$base_path/plugin/$name/app/config");
-        $this->mkdir("$base_path/plugin/$name/app/view/index");
+        $this->mkdir("$base_path/plugin/$name/controller");
+        $this->mkdir("$base_path/plugin/$name/model");
+        $this->mkdir("$base_path/plugin/$name/middleware");
+        $this->mkdir("$base_path/plugin/$name/route");
+        $this->mkdir("$base_path/plugin/$name/validate");
+        $this->mkdir("$base_path/plugin/$name/command");
+        $this->mkdir("$base_path/plugin/$name/config");
+        $this->mkdir("$base_path/plugin/$name/view/index");
         //生成相关文件
-        $this->createCommonFile("$base_path/plugin/$name/app/common.php");
-        $this->createEnevtFile("$base_path/plugin/$name/app/event.php");
-        $this->createControllerFile("$base_path/plugin/$name/app/controller/IndexController.php", $name);
-        $this->createViewFile("$base_path/plugin/$name/app/view/index/index.html");
-        $this->createCommandFile("$base_path/plugin/$name/app/command/TestCommand.php", $name);
-        $this->createCommandConfigFile("$base_path/plugin/$name/app/config/console.php", $name);
-        $this->createRouteConfigFile("$base_path/plugin/$name/app/route/route.php");
+        $this->createCommonFile("$base_path/plugin/$name/common.php");
+        $this->createEnevtFile("$base_path/plugin/$name/event.php");
+        $this->createControllerFile("$base_path/plugin/$name/controller/IndexController.php", $name);
+        $this->createViewFile("$base_path/plugin/$name/view/index/index.html");
+        $this->createCommandFile("$base_path/plugin/$name/command/TestCommand.php", $name);
+        $this->createCommandConfigFile("$base_path/plugin/$name/config/console.php", $name);
+        $this->createRouteConfigFile("$base_path/plugin/$name/route/route.php");
     }
 
     /**
@@ -143,7 +143,7 @@ EOF;
 // +----------------------------------------------------------------------
 // | Licensed REBORN 并不是自由软件，未经许可不能去掉 REBORN 相关版权
 // +----------------------------------------------------------------------
-namespace  app\\plugin\\$name\\app\\controller;
+namespace  app\plugin\\$name\\controller;
 class IndexController
 {
 
@@ -202,7 +202,7 @@ EOF;
 // +----------------------------------------------------------------------
 // | Licensed REBORN 并不是自由软件，未经许可不能去掉 REBORN 相关版权
 // +----------------------------------------------------------------------
-namespace app\\plugin\\$name\\app\\command;
+namespace app\\plugin\\$name\\command;
 
 use think\console\Command;
 use think\console\Input;
@@ -249,7 +249,7 @@ EOF;
 return [
     // 指令定义
     'commands' => [
-        'test:create' => 'app\\plugin\\$name\\app\\command\\TestCommand',//应用插件测试命令行
+        'test:create' => 'app\\plugin\\$name\\command\\TestCommand',//应用插件测试命令行
     ],
 ];
 EOF;
