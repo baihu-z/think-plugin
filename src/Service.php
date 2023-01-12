@@ -3,7 +3,7 @@
 namespace think\plugin;
 
 use think\Console;
-use think\plugin\Plugin;
+use think\plugin\PluginApp;
 use think\plugin\Url;
 use think\Service as BaseService;
 use think\Route;
@@ -38,9 +38,9 @@ class Service extends BaseService
     public function boot()
     {
         //注册插件基础中间件
-        $this->app->event->listen('HttpRun', function () {
-            $this->app->middleware->add(Plugin::class);
-        });
+//        $this->app->event->listen('HttpRun', function () {
+//            $this->app->middleware->add(PluginApp::class);
+//        });
         //注册插件基础命令
         $this->commands([
             'app-plugin:create' => command\AppPluginCreateCommand::class,
@@ -50,50 +50,13 @@ class Service extends BaseService
             'think\plugin\Url' => Url::class,
         ]);
         $routes = (array)Config::get();
+
         $this->registerRoutes(function (Route $route) {
             // 路由脚本
             $execute = '\\think\\plugin\\Route::execute';
             // 注册控制器路由
-            $route->rule("plugin/:plugin/[:controller]/[:action]", $execute)->middleware(Plugin::class);
+            $route->rule("plugin/:plugin/[:controller]/[:action]",$execute)->middleware(PluginApp::class);
             // 自定义路由
-//            $routes = (array) Config::get('plugin.route', []);
-//            foreach ($routes as $key => $val) {
-//                if (!$val) {
-//                    continue;
-//                }
-//                if (is_array($val)) {
-//                    $domain = $val['domain'];
-//                    $rules = [];
-//                    foreach ($val['rule'] as $k => $rule) {
-//                        [$plugin, $controller, $action] = explode('/', $rule);
-//                        $rules[$k] = [
-//                            'plugin'        => $plugin,
-//                            'controller'    => $controller,
-//                            'action'        => $action,
-//                            'indomain'      => 1,
-//                        ];
-//                    }
-//                    $route->domain($domain, function () use ($rules, $route, $execute) {
-//                        // 动态注册域名的路由规则
-//                        foreach ($rules as $k => $rule) {
-//                            $route->rule($k, $execute)
-//                                ->name($k)
-//                                ->completeMatch(true)
-//                                ->append($rule);
-//                        }
-//                    });
-//                } else {
-//                    list($plugin, $controller, $action) = explode('/', $val);
-//                    $route->rule($key, $execute)
-//                        ->name($key)
-//                        ->completeMatch(true)
-//                        ->append([
-//                            'plugin' => $plugin,
-//                            'controller' => $controller,
-//                            'action' => $action
-//                        ]);
-//                }
-//            }
         });
 
     }
@@ -105,7 +68,7 @@ class Service extends BaseService
     {
         $hooks = $this->app->isDebug() ? [] : Cache::get('hooks', []);
         if (empty($hooks)) {
-            $hooks = (array)Config::get('plugins.hooks', []);
+            $hooks = (array)Config::get('plugin.hooks', []);
             // 初始化钩子
             foreach ($hooks as $key => $values) {
                 if (is_string($values)) {
@@ -190,7 +153,8 @@ class Service extends BaseService
             // 找到插件入口文件
             if (strtolower($info['filename']) === 'plugin') {
                 // 读取出所有公共方法
-                $methods = (array)get_class_methods("\\plugins\\" . $name . "\\" . $info['filename']);
+                $methods = (array)get_class_methods("\\plugin\\" . $name . "\\" . $info['filename']);
+                var_dump($methods);
                 // 跟插件基类方法做比对，得到差异结果
                 $hooks = array_diff($methods, $base);
                 // 循环将钩子方法写入配置中
@@ -207,9 +171,9 @@ class Service extends BaseService
                     }
 
                 }
-                $config['a'] = [];
-            }
 
+            }
+            $config['a'] = [];
             if (strtolower($info['filename']) === 'common') {
                 include_once $plugins_file;
             }

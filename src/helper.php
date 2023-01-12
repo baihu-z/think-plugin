@@ -111,15 +111,16 @@ if (!function_exists('get_plugins_class')) {
         } else {
             $class = Str::studly(is_null($class) ? $name : $class);
         }
+
         switch ($type) {
             case 'controller':
-                $namespace = '\\plugins\\' . $name . '\\controller\\' . $class;
+                $namespace = '\\plugin\\' . $name . '\\controller\\' . $class;
                 break;
             default:
-                $namespace = '\\plugins\\' . $name . '\\Plugin';
+                $namespace = '\\plugin\\' . $name . '\\Plugin';
         }
 
-        return class_exists($namespace) ? $namespace : '';
+        return class_exists($namespace) ? $namespace :(class_exists($namespace.'Controller')?$namespace.'Controller':"");
     }
 }
 
@@ -163,6 +164,6 @@ if (!function_exists('plugins_url')) {
             }
         }
 
-        return Route::buildUrl("@plugins/{$plugins}/{$controller}/{$action}", $param)->suffix($suffix)->domain($domain);
+        return Route::buildUrl("@plugin/{$plugins}/{$controller}/{$action}", $param)->suffix($suffix)->domain($domain);
     }
 }

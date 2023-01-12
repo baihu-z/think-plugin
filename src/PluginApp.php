@@ -11,7 +11,7 @@ use think\Response;
 /**
  * 应用插件模式支持
  */
-class Plugin
+class PluginApp
 {
     /** @var App */
     protected $app;
@@ -68,6 +68,7 @@ class Plugin
 //            return $next($request);
 //        }
 
+        return $next($request);
         return $this->app->middleware->pipeline($this->name)
             ->send($request)
             ->then(function ($request) use ($next) {

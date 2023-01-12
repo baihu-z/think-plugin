@@ -1,5 +1,7 @@
 <?php
+
 namespace think\plugin;
+
 use think\exception\HttpException;
 use think\facade\Config;
 use think\facade\Event;
@@ -16,38 +18,23 @@ class Route
      */
     public static function execute($plugin = null, $controller = null, $action = null)
     {
+
         $app = app();
         $request = $app->request;
-        Event::trigger('plugins_begin', $request);
-
         if (empty($plugin) || empty($controller) || empty($action)) {
             throw new HttpException(500, lang('plugin can not be empty'));
         }
-
         $request->plugin = $plugin;
         // 设置当前请求的控制器、操作
         $request->setController($controller)->setAction($action);
-        // 获取插件基础信息
-        $info = get_plugins_info($plugin);
-        if (!$info) {
-            throw new HttpException(404, lang('plugin [%s] not found', [$plugin]));
-        }
-        if (!$info['status']) {
-            throw new HttpException(500, lang('plugin [%s] is disabled', [$plugin]));
-        }
-
-        // 监听plugin_module_init
-        Event::trigger('plugin_module_init', $request);
         $class = get_plugins_class($plugin, 'controller', $controller);
         if (!$class) {
             throw new HttpException(404, lang('plugin controller %s not found', [Str::studly($controller)]));
         }
-
         // 重写视图基础路径
         $config = Config::get('view');
-        $config['view_path'] = $app->plugins->getpluginsPath() . $plugin . DIRECTORY_SEPARATOR . 'view' . DIRECTORY_SEPARATOR;
+        $config['view_path'] = $app->plugin->getpluginPath() . $plugin . DIRECTORY_SEPARATOR . 'view' . DIRECTORY_SEPARATOR;
         Config::set($config, 'view');
-
         // 生成控制器对象
         $instance = new $class($app);
         $vars = [];
@@ -60,9 +47,8 @@ class Route
             $vars = [$action];
         } else {
             // 操作不存在
-            throw new HttpException(404, lang('plugin action %s not found', [get_class($instance).'->'.$action.'()']));
+            throw new HttpException(404, lang('plugin action %s not found', [get_class($instance) . '->' . $action . '()']));
         }
-        Event::trigger('plugins_action_begin', $call);
 
         return call_user_func_array($call, $vars);
     }
