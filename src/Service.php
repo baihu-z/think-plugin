@@ -3,7 +3,7 @@
 namespace think\plugin;
 
 use think\Console;
-use think\plugin\PluginApp;
+use think\plugin\Plugin;
 use think\plugin\Url;
 use think\Service as BaseService;
 use think\Route;
@@ -44,6 +44,8 @@ class Service extends BaseService
         //注册插件基础命令
         $this->commands([
             'app-plugin:create' => command\AppPluginCreateCommand::class,
+            "app-plugin:make:controller" => command\make\Controller::class,
+            "app-plugin:make:model" => command\make\Model::class,
         ]);
         //注册插件基础路由
         $this->app->bind([
@@ -55,7 +57,7 @@ class Service extends BaseService
             // 路由脚本
             $execute = '\\think\\plugin\\Route::execute';
             // 注册控制器路由
-            $route->rule("plugin/:plugin/[:controller]/[:action]",$execute)->middleware(PluginApp::class);
+            $route->rule("plugin/:plugin/[:controller]/[:action]", $execute);
             // 自定义路由
         });
 

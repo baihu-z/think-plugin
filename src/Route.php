@@ -18,7 +18,6 @@ class Route
      */
     public static function execute($plugin = null, $controller = null, $action = null)
     {
-
         $app = app();
         $request = $app->request;
         if (empty($plugin) || empty($controller) || empty($action)) {

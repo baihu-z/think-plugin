@@ -1,10 +1,12 @@
 <?php
 declare(strict_types=1);
+
 use think\facade\Event;
 use think\facade\Route;
 use think\helper\{
     Str, Arr
 };
+
 // 插件类库自动载入
 spl_autoload_register(function ($class) {
 
@@ -120,7 +122,7 @@ if (!function_exists('get_plugins_class')) {
                 $namespace = '\\plugin\\' . $name . '\\Plugin';
         }
 
-        return class_exists($namespace) ? $namespace :(class_exists($namespace.'Controller')?$namespace.'Controller':"");
+        return class_exists($namespace) ? $namespace : (class_exists($namespace . 'Controller') ? $namespace . 'Controller' : "");
     }
 }
 
